@@ -63,14 +63,13 @@ if __name__ == "__main__":
     configs = pd.read_csv('results/multiclass/configs.csv')
 
     calibrator_factories = {
+        'iso': lambda: get_calibrator('isotonic'),
         'guo_ts': lambda: get_calibrator('guo-ts'),
         'prob_ts': lambda: get_calibrator('ts-mix'),
         'torch_ts': lambda: TorchcalTemperatureScalingCalibrator(),
-        'svs': lambda: get_calibrator('svs'),
-        # 'svs_bfgs': lambda: get_calibrator('svs', svs_opt='bfgs'),
+        'svs': lambda: get_calibrator('svs', svs_opt='bfgs'),
         'torch_vs': lambda: TorchcalVectorScalingCalibrator(),
-        'sms': lambda: get_calibrator('sms'),
-        # 'sms_bfgs': lambda: get_calibrator('sms', sms_opt='bfgs'),
+        'sms': lambda: get_calibrator('sms', sms_opt='bfgs'),
         'torch_ms': lambda: TorchcalMatrixScalingCalibrator(),
         'dir_ms': lambda: get_calibrator('dircal', dircal_reg_lambda=1e-3, dircal_reg_mu=1e-3),
     }
@@ -82,17 +81,14 @@ if __name__ == "__main__":
         print(f"\n=== Running benchmark for calibrator: {cal_name} ===")
         for _, row in tqdm(configs.iterrows(), total=len(configs)):
             dataset, fold, config = row['dataset'], row['fold'], row['tuned_config']
-            try:
-                p_cal, y_cal, p_test, y_test, base_results, metrics = prepare_dataset(
-                    repo, dataset, fold, config, data_cache
-                )
+            
+            p_cal, y_cal, p_test, y_test, base_results, metrics = prepare_dataset(
+                repo, dataset, fold, config, data_cache
+            )
 
-                key = (dataset, fold, config)
-                if key not in aggregated_results:
-                    aggregated_results[key] = base_results.copy()
-
-            except Exception:
-                pass
+            key = (dataset, fold, config)
+            if key not in aggregated_results:
+                aggregated_results[key] = base_results.copy()
 
             cal = factory()
             aggregated_results[key] = test_calibrator(

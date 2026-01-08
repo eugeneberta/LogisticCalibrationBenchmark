@@ -20,16 +20,22 @@ def test_calibrator(cal, name, metrics, results, p_val, y_val, p_test, y_test, v
     results[f'{name}_time'] = runtime
     return results
 
-def plot_barscatter_ax(ax: plt.Axes, df: pd.DataFrame, title: str, ylabel: str):
+def plot_barscatter_ax(ax: plt.Axes, df: pd.DataFrame, title: str, ylabel: str, palette: dict = None):
     # Helper function for box-plots
     # adapted from https://cduvallet.github.io/posts/2018/03/boxplots-in-python
 
-    hues = df['hue'].unique().tolist()
-    colors = sns.color_palette("pastel", len(hues))
-    light_colors = colors
 
-    pal = {key: value for key, value in zip(hues, colors)}
-    face_pal = {key: value for key, value in zip(hues, light_colors)}
+    hues = df['hue'].unique().tolist()
+
+    if palette is None:
+        colors = sns.color_palette("pastel", len(hues))
+        light_colors = colors
+
+        pal = {key: value for key, value in zip(hues, colors)}
+        face_pal = {key: value for key, value in zip(hues, light_colors)}
+    else:
+        pal = palette
+        face_pal = palette
 
     hue_order = hues
 
@@ -111,4 +117,18 @@ def df_to_latex_table(df: pd.DataFrame, metric: str) -> str:
 
     return latex
 
-import pandas as pd
+def format_column(series):
+    min_val = series.min() # Find the algebraic minimum (best improvement)
+    formatted_list = []
+    
+    for val in series:
+        # Format to 4 decimal places
+        str_val = f'{val:.4f}'
+        
+        # If this is the minimum value, wrap in LaTeX bold
+        if val == min_val:
+            formatted_list.append(f'\\textbf{{{str_val}}}')
+        else:
+            formatted_list.append(str_val)
+            
+    return formatted_list

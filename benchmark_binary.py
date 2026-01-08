@@ -54,6 +54,7 @@ if __name__ == "__main__":
     configs = pd.read_csv('results/binary/configs.csv')
 
     calibrator_factories = {
+        'iso': lambda: get_calibrator('isotonic'),
         'guo_ts': lambda: get_calibrator('guo-ts'),
         'prob_ts': lambda: get_calibrator('ts-mix'),
         'ts': lambda: get_calibrator('linear-scaling'),
@@ -68,17 +69,14 @@ if __name__ == "__main__":
         print(f"\n=== Running benchmark for calibrator: {cal_name} ===")
         for _, row in tqdm(configs.iterrows(), total=len(configs)):
             dataset, fold, config = row['dataset'], row['fold'], row['tuned_config']
-            try:
-                p_cal, y_cal, p_test, y_test, base_results, metrics = prepare_dataset(
-                    repo, dataset, fold, config, data_cache
-                )
 
-                key = (dataset, fold, config)
-                if key not in aggregated_results:
-                    aggregated_results[key] = base_results.copy()
+            p_cal, y_cal, p_test, y_test, base_results, metrics = prepare_dataset(
+                repo, dataset, fold, config, data_cache
+            )
 
-            except Exception:
-                pass
+            key = (dataset, fold, config)
+            if key not in aggregated_results:
+                aggregated_results[key] = base_results.copy()
 
             cal = factory()
             aggregated_results[key] = test_calibrator(

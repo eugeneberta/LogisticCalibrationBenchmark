@@ -16,9 +16,11 @@ binary_datasets, multiclass_datasets = [], []
 for dataset in repo.datasets():
     problem_type = repo.dataset_info(dataset)['problem_type']
     if problem_type == 'binary':
-        binary_datasets.append(dataset)
+        if dataset != 'MiniBooNE': # TabRepo returns an error for this dataset.
+            binary_datasets.append(dataset)
     elif problem_type == 'multiclass':
-        multiclass_datasets.append(dataset)
+        if dataset != 'jannis' and dataset != 'kropt' and dataset != 'shuttle': # TabRepo returns an error for these 3 datasets.
+            multiclass_datasets.append(dataset)
 print(f'Found {len(binary_datasets)} binary datasets and {len(multiclass_datasets)} binary datasets')
 
 with open("results/binary/datasets.json", 'w') as f:
