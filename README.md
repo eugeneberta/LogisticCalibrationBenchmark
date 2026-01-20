@@ -1,4 +1,4 @@
-# LogisticCalibrationBenchmark
+# LogisticCalibrationExperiments
 Experimental repository for the paper [Structured Matrix Scaling for Multi-Class Calibration](https://arxiv.org/abs/2511.03685).
 
 Uses the [probmetrics](https://github.com/dholzmueller/probmetrics/) package to benchmark new logistic post hoc calibration functions against existing baselines.
